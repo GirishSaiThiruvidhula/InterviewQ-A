@@ -1,0 +1,125 @@
+Why Spark is faster than Hadoop?
+
+What is small file problem in Hadoop?
+
+1) Large number of files which are lessthan the block size of HDFS.
+2) Metadata of namenode increases.
+
+
+Input Split vs Block size
+=========================
+Block size:
+-----------
+In HDFS, the default block size is of 64 MB and it can be configured based on the requirement. The physical partition of file and
+storing it in HDFS. For example, there is a file size of 100MB and it will stored as 64MB in one node and 36MB in another node.
+It is caluclated by HDFS
+
+
+Input Slipt:
+------------
+It is the amount of data that is consumed by the mapper. It is a logical partition of a file in hDFS processed by a mapper.We can 
+define the input slipt size.For example input split size is 100MB even if the file is partitioned across diffrenet nodes physically but
+it is processed by a sinlge mapper at the time of execution.It is caluclated by Map reduce framework.
+
+Can we find whether the table is statically or dynamically partitioned?
+There is no way to find whether the table is statically or dynamically partitioned.
+
+COMBINER:
+=========
+What is combiner?
+The reduce task done by mapper or happen on map side.
+2. What are benefits of combiner
+The network I\O between mapper and reducer can be decreased drastically.
+
+3. Can combiner be used always
+No, we cannot use cobiner always, the code used by reducer and combiner should be same i.e., it should be commutative or assocoative. 
+This means a+b = b+a.
+
+4. When can combiner not be used
+--------------------------------
+When we are performing operations like aggregate.
+
+How to reduce the tracffic between mapper and reducer?
+------------------------------------------------------
+1) Combiner
+2) Mapper output compression, data won't be reduced but it will decrease the bandwidth useage.
+3) Using the optimized code and filter as much as possible data unrequired data in mapper phase.
+
+Solution for Small File Issue in Hadoop?
+
+1)Small file size will occur when the output file is less and we have set huge number of reducers.(No.of reducers = no.of output files). We should have a prior idea about input and output accordingly we have to set the number of reducers.
+
+2)There is a secnario where the input file size is very small in very larger number and we have to merge all the small files into a larger file by using file treasurer and process the data in HDFS.
+
+3)Combined Inputformat if we are using Hive or pig. It will combine multiple small files and give it as input to a single mapper.
+
+When will Secondary Namenode become Primary Namenode?
+
+SN never become a PN. SN primary duty is to store the backup of FSimage and merge the FS image with the recent editlogs and provide it back to PN during the server restart. 
+
+Distrubuted Cache in Hadoop?
+
+Distributed Cache is a facility provided by the Hadoop MapReduce framework. It cache files when needed by the applications. It can cache read only text files, archives, jar files etc. Once we have cached a file for our job, Hadoop will make it available on each datanodes where map/reduce tasks are running.
+Thus, we can access files from all the datanodes in our map and reduce job.
+
+For example, if we are joining 2 tables and one of them is small, we can hash map the samll table and place it in cache. So that it will be available to all the  maapers on which the mapper is running. This is means the samll file is copied on multiple machines on whihc the mapper is running, so that the data transfer can be avoided. That why use this in map side join.These files are read only files and no changes can be done on these type of files.
+
+What kind of task should not be done on Hadoop?
+----------------------------------------------
+Below are the scenarios where Hadoop cannot be used or useful
+1)Hadoop should not be used in the scenario where the file size is less than the block size defined in Hadoop.
+2)Real time data processing and analysis.
+3)Due to slow response times, Hadoop should not be used for a relational database.
+4)For a General Network File System: 
+
+Difference between Invalidate metadata and refresh in Impala?
+-------------------------------------------------------------
+If we create a table and load data into the table in Hive and logon to Impala to process the quries then those tables are not immediately reflected in Impala. For these things to happen we need perform below operations:
+Invalidate metadata:
+It is used to reload the whole metadata of the table i.e., it means if the we have added new partions to a table and perform INVALIDATE metadata then whole tables metadata will be loaded which is an expensive operation.
+REFRESH:
+It appends only the newly added or changed metadata to existing one. It is advisable to use REFRESH table command if the the table size is huge.
+
+According to Cloudera's Impala guide (Cloudera Enterprise 5.8) but stayed the same for 5.9:
+
+INVALIDATE METADATA and REFRESH are counterparts: INVALIDATE METADATA waits to reload the metadata when needed for a subsequent query, but reloads all the metadata for the table, which can be an expensive operation, especially for large tables with many partitions. REFRESH reloads the metadata immediately, but only loads the block location data for newly added data files, making it a less expensive operation overall. If data was altered in some more extensive way, such as being reorganized by the HDFS balancer, use INVALIDATE METADATA to avoid a performance penalty from reduced local reads. If you used Impala version 1.0, the INVALIDATE METADATA statement works just like the Impala 1.0 REFRESH statement did, while the Impala 1.1 REFRESH is optimized for the common use case of adding new data files to an existing table, thus the table name argument is now required.
+
+
+and related to working on existing tables:
+
+The table name is a required parameter [for REFRESH]. To flush the metadata for all tables, use the INVALIDATE METADATA command. Because REFRESH table_name only works for tables that the current Impala node is already aware of, when you create a new table in the Hive shell, enter INVALIDATE METADATA new_table before you can see the new table in impala-shell. Once the table is known by Impala, you can issue REFRESH table_name after you add data files for that table.
+
+Difference between Avro and Parquet?
+------------------------------------
+Avro: 
+Avro™ is an open source project that provides data serialization and data exchange services for Apache™ Hadoop®. These services can be used together or independently. Avro facilitates the exchange of big data between programs written in any language. With the serialization service, programs can efficiently serialize data into files or into messages. The data storage is compact and efficient. Avro stores both the data definition and the data together in one message or file. 
+
+Avro stores the data definition in JSON format making it easy to read and interpret, the data itself is stored in binary format making it compact and efficient. Avro files include markers that can be used to splitting large data sets into subsets suitable for Apache MapReduce™ processing. Some data exchange services use a code generator to interpret the data definition and produce code to access the data. Avro doesn't require this step, making it ideal for scripting languages.
+
+A key feature of Avro is robust support for data schemas that change over time - often called schema evolution. Avro handles schema changes like missing fields, added fields and changed fields; as a result, old programs can read new data and new programs can read old data. Avro includes API's for Java, Python, Ruby, C, C++ and more. Data stored using Avro can be passed from programs written in different languages, even from a complied language like C to a scripting language like Apache Pig™.
+
+Parquet:
+Apache Parquet format is a columnar storage format with the following characteristics:
+
+Apache Parquet is column-oriented and designed to bring efficient columnar storage of data compared to row based files like CSV
+Apache Parquet is built from the ground up with complex nested data structures in mind
+Apache Parquet is built to support very efficient compression and encoding schemes
+Apache Parquet allows to lower storage costs for data files and maximizes the effectiveness of querying data with serverless technologies like Amazon Athena, Redshift Spectrum and Google Dataproc.
+Apache Parquet is a self-describing data format which embeds the schema, or structure, within the data itself. This results in a file that is optimized for query performance and minimizing I/O. Parquet also supports very efficient compression and encoding schemes. The great thing is that it is lice;nsed under the Apache software foundation and available to any project.
+
+Hive and Spark | Partitions vs Bucketing
+
+Sqoop Null String Import:
+=========================
+
+sqoop import -libjars /usr/lib/sqoop/lib/tdgssconfig.jar,/usr/lib/sqoop/lib/terajdbc4.jar -Dmapred.job.queue.name=xxxxxx \ --connect jdbc:teradata://xxx.xx.xxx.xx/DATABASE=$db,LOGMECH=LDAP --connection-manager org.apache.sqoop.teradata.TeradataConnManager \ --username $user --password $pwd --query "
+
+select col1,col2,col3 from $db.xxx
+
+where \$CONDITIONS" \ --null-string '\N' --null-non-string '\N' \ --fields-terminated-by '\t' --num-mappers 6 \ --split-by job_number \ --delete-target-dir \ --target-dir $hdfs_loc
+
+1.If (null string) property is not included during sqoop import, then NULLs are stored as [blank for integer columns] and [blank for string columns] in HDFS. 
+2.If the HIVE table on top of HDFS is queried, we would see [NULL for integer column] and [blank for String columns]
+3.If the (--null-string '\N') property is included during sqoop import, then NULLs are stored as ['\N' for both integer and string columns].
+4.If the HIVE table on top of HDFS is queried, we would see [NULL for both integer and string columns not '\N']
+
