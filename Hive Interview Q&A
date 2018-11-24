@@ -1,0 +1,442 @@
+Apache Hive Interview Questions
+================================
+Beginner
+=========
+1.	What are the main use cases for using Hive?
+------------------------------------------------
+Hive has three main functions: data summarization, query and analysis. It supports queries expressed in a language called HiveQL, or HQL,
+a declarative SQL-like language that, in its first incarnation, automatically translated SQL-style queries into MapReduce jobs executed 
+on the Hadoop platform.
+
+2.	Can we use Hive for Online Transaction Processing (OLTP) systems?
+---------------------------------------------------------------------
+NO as it doesnot support ACID properties of Database.
+
+3.	What is Metastore in Hive?
+-------------------------------
+Hive Metastore is a central repository for Hive metadata. It has 2 components: A Service to which the Hive Driver connects to and queries
+for the database schema. A backing database to store the metadata. Currently Hive supports 5 backend databases: Derby, MySQL, MS SQL 
+Server, Oracle and Postgres.
+https://www.quora.com/What-is-Hive-Metastore
+
+4.	What is SerDe in Hive?
+--------------------------
+A SerDe is a combination of a Serializer and a Deserializer (hence, Ser-De). The Deserializer interface takes a string or binary 
+representation of a record, and translates it into a Java object that Hive can manipulate.
+
+https://blog.cloudera.com/blog/2012/12/how-to-use-a-serde-in-apache-hive/
+
+5.	What are the components in Hive data model?
+------------------------------------------------
+https://data-flair.training/blogs/apache-hive-architecture/
+
+6.	What is the use of Hive in Hadoop eco-system?
+-------------------------------------------------
+Hive has three main functions: data summarization, query and analysis. It supports queries expressed in a language called HiveQL, or HQL,
+a declarative SQL-like language that, in its first incarnation, automatically translated SQL-style queries into MapReduce jobs executed 
+on the Hadoop platform.
+7.	What are the main components of Hive?
+https://data-flair.training/blogs/apache-hive-architecture/
+
+8.	What Collection/Complex data types are supported by Hive?
+-------------------------------------------------------------
+https://acadgild.com/blog/working-with-hive-complex-data-types
+
+9.	What is the precedence order in Hive configuration?
+-------------------------------------------------------
+Hive SET highest priority
+-hive-conf option from Hive CLI
+hive-site.xml file
+hive-default.xml
+hadoop-site.xml
+hadoop-default.xml
+
+10.	How will you change settings of a Hive session?
+---------------------------------------------------
+BY using the SET property statement
+Eg: set hive.enforce.bucketing = ture;
+
+11.	What is the difference between SORT BY and ORDER BY in Hive?
+----------------------------------------------------------------
+SORT BY sorts the keys of the table among the reducers
+ORDER BY sorts the keys to a single reducers
+https://www.guru99.com/hive-queries-implementation.html
+
+12.	What is the use of IF EXISTS clause in Hive statements?
+-----------------------------------------------------------
+IF EXISTS check the table/database exists or not before the execution of hive statement
+
+13.	What is ObjectInspector in Hive?
+------------------------------------
+https://data-flair.training/blogs/hive-serde/
+https://hadoopinaction.wordpress.com/2014/04/08/what-is-objectinspector-functionality/
+
+14.	What are the different SerDe implementations in Hive?
+---------------------------------------------------------
+https://data-flair.training/blogs/hive-serde/
+
+15.	What is the use of HCatalog?
+--------------------------------
+HCatalog is a table storage management tool for Hadoop that exposes the tabular data of Hivemetastore to other Hadoop applications. 
+It enables users with different data processing tools (Pig, MapReduce) to easily write data onto a grid.
+
+16.	What is the Data Model of HCatalog?
+---------------------------------------
+https://www.tutorialspoint.com/hcatalog/hcatalog_introduction.htm
+
+17.	How can we specify in Hive to load an HDFS file in LOAD DATA?
+------------------------------------------------------------------
+LOAD DATA INPATH '/user/selfcoursebigdata2042/girish/departments' into table departments;
+
+18.	What are the options to connect an application to a Hive server?
+-------------------------------------------------------------------
+https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients
+
+19.	How TRIM and RPAD functions work in Hive?
+---------------------------------------------
+http://hadooptutorial.info/string-functions-in-hive/
+RPAD :
+Syntax: “RPAD(string str,int len,string pad)”
+
+The RPAD function returns the string with a length of len characters Right-padded with pad.
+
+MySQL
+
+
+hive> select RPAD(name,6,'#') from Tri100;
+rahul#
+Mohit#
+Rohan#
+Ajay##
+srujay
+
+hive> select RPAD('India',6,'#') from Tri100;
+India#
+India#
+India#
+India#
+India#
+TRIM
+TRIM Function removes all the trailing spaces from the string.
+hive> select TRIM('        hive      ') from Tri100 where sal=22000;
+hive
+
+hive> select LTRIM('        hive') from Tri100 where sal=22000;
+hive
+
+hive> select RTRIM('hive         ') from Tri100 where sal=22000;
+
+20.	How will you recursively access sub-directories in Hive?
+------------------------------------------------------------
+https://stackoverflow.com/questions/26767713/can-hive-recursively-descend-into-subdirectories-without-partitions-or-editing-h
+
+21.	  <property>
+22.	    <name>mapred.input.dir.recursive</name>
+23.	    <value>true</value>
+24.	  </property>
+25.	
+26.	  <property>
+27.	    <name>hive.mapred.supports.subdirectories</name>
+28.	    <value>true</value>
+29.	  </property>
+
+30.	What is STREAMTABLE in Hive?
+--------------------------------
+In every map/reduce stage of the join, the table to be streamed can be specified via a hint. e.g. in
+SELECT /*+ STREAMTABLE(a) */ a.val, b.val, c.val FROM a JOIN b ON
+(a.key = b.key1) JOIN c ON (c.key = b.key1)
+
+All the three tables are joined in a single map/reduce job and the values for a particular value of the key for tables b and c are 
+buffered in the memory in the reducers. Then for each row retrieved from a, the join is computed with the buffered rows. If the 
+STREAMTABLE hint is omitted,
+Hive streams the rightmost table in the join.
+https://grokbase.com/t/hive/user/13c3mgshqe/streamtable-and-mapjoin
+
+Intermediate
+============
+1.	How will you change the data type of a column in Hive?
+----------------------------------------------------------
+ALTER TABLE table_name CHANGE [COLUMN] col_old_name col_new_name column_type [COMMENT col_comment] [FIRST|AFTER column_name]
+CREATE TABLE test_change (a int, b int, c int);
+// will change column a's name to a1
+ALTER TABLE test_change CHANGE a a1 INT;
+
+2.	What is the use of .hiverc file in Hive?
+--------------------------------------------
+Apache Hive: The .hiverc file
+What is .hiverc file?
+It is a file that is executed when you launch the hive shell - making it an ideal place for adding any hive configuration/customization 
+you want set, on start of the hive shell. This could be:
+- Setting column headers to be visible in query results
+- Making the current database name part of the hive prompt
+- Adding any jars or files
+- Registering UDFs
+.hiverc file location
+The file is loaded from the hive conf directory.
+I have the CDH4.2 distribution and the location is: /etc/hive/conf.cloudera.hive1
+If the file does not exist, you can create it.
+It needs to be deployed to every node from where you might launch the Hive shell.
+[Note: I had to create the file;  The distribution did not come with it.]
+Sample .hiverc
+add jar /home/airawat/hadoop-lib/hive-contrib-0.10.0-cdh4.2.0.jar;
+set hive.exec.mode.local.auto=true;
+set hive.cli.print.header=true;
+set hive.cli.print.current.db=true;
+set hive.auto.convert.join=true;
+set hive.mapjoin.smalltable.filesize=30000000;
+
+3.	How does CONCAT function work in Hive?
+------------------------------------------
+Use concat() function:
+'SELECT concat('Select * from ', [table_name],  '; ') 
+             FROM table_name
+                 ORDER BY [table_name]'
+if a [table_name] is a column containing table_name
+
+4.	How will you run Unix commands from Hive?
+---------------------------------------------
+Running Hadoop FS Commands from Hive Shell
+Hive Shell Provides the ability to run Hadoop FS commands within Hive Shell itself, So that whenever we need to refer or view any 
+input/output files/directories in HDFS then instead of coming out from Hive shell to perform HDFS FS commands, we can do it within Hive 
+Shell itself with dfs command. 
+hive> dfs -ls /in/test.txt;
+Found 1 items
+-rw-r--r--   1 hadoop1 supergroup        101 2014-10-01 00:52 /in/test.txt
+hive> dfs -cat /in/test.txt;
+This is a test file created for examining the Avro Mapreduce word count program. count file is fine.
+hive>
+This method of accessing hadoop commands is more efficient than using the hadoop fs commands at the bash shell, because the latter 
+starts up a new JVM instance each time, whereas Hive just runs the same code in its current process.
+Running Linux Shell Commands from Hive Shell
+In addition of running Hadoop FS commands from Hive Shell, We can also run Linux bash shell commands within Hive shell itself. 
+We need to type ! followed by the command and terminate the line with a semicolon ( ; ).
+	
+hive> !pwd;
+/home/siva
+hive> !hostname;
+ubuntu-1
+hive> ! echo "Hello World !!!";
+"Hello World !!!"
+hive> ! cat test.txt;
+sample input file to test hive commands
+hive>
+Limitations
+•	Interactive commands that require user input, can’t be issued in Hive shell.
+•	Passing output from one command to another through pipes (|) are not supported.
+•	File globs are also not supported. For example, ! ls *.hql; will look for a file named *.hql;,
+rather than all files that end with the .hql extension
+Running Hive Commands from Unix Shell
+
+Hive –e “select * from employee”
+Hive –f hivescript.hql
+#!/bin/bash
+
+old_IFS=$IFS
+IFS=$'\n'
+for line in $(hadoop fs -cat /hdfs_path/date.txt)
+do
+   hive -f "select * from test where datestring = $line"
+done          
+IFS=$old_IFS
+
+5.	What are the different modes in which we can run Hive?
+Different modes of Hive
+Hive can operate in two modes depending on the size of data nodes in Hadoop.
+These modes are,
+•	Local mode
+•	Map reduce mode
+When to use Local mode:
+•	If the Hadoop installed under pseudo mode with having one data node we use Hive in this mode
+•	If the data size is smaller in term of limited to single local machine, we can use this mode
+•	Processing will be very fast on smaller data sets present in the local machine
+When to use Map reduce mode:
+•	If Hadoop is having multiple data nodes and data is distributed across different node we use Hive in this mode
+•	It will perform on large amount of data sets and query going to execute in parallel way
+•	Processing of large data sets with better performance can be achieved through this mode
+In Hive, we can set this property to mention which mode Hive can work? By default, it works on Map Reduce mode and for local mode you 
+can have the following setting.
+Hive to work in local mode set
+SET mapred.job.tracker=local;
+From the Hive version 0.7 it supports a mode to run map reduce jobs in local mode automatically.
+
+6.	What is the use of strict mode in Hive?
+-------------------------------------------
+https://www.linkedin.com/pulse/strict-mode-hive-prateek-kumar
+
+7.	Can we create multiple tables in Hive for a data file?
+----------------------------------------------------------
+Yes
+
+8.	What is RLIKE operator in Hive?
+------------------------------------
+A LIKE B	Strings	TRUE if string pattern A matches to B otherwise FALSE.
+A RLIKE B	Strings	NULL if A or B is NULL, TRUE if any substring of A matches the Java regular expression B , otherwise FALSE.
+A REGEXP B	Strings	Same as RLIKE.
+
+Look for Customer names that have have substring "Aida" or substring "Nass" somewhere:
+SELECT CustomerID, CustomerName 
+FROM Customers 
+WHERE CustomerName RLIKE 'Aida|Nass'; 
+
+The result will be like this:
+CustomerID	CustomerName
+10	Erika Nass
+13	Aida Yespica
+
+9.	What is the purpose of USE command in Hive?
+-----------------------------------------------
+The command to use the database is USE <data base name> from list of darabases in warehouse directory of Hive
+
+10.	What is the use of ORC format tables in Hive?
+-------------------------------------------------
+https://acadgild.com/blog/apache-hive-file-formats
+
+11.	What is the difference between HBase and Hive?
+--------------------------------------------------
+https://data-flair.training/blogs/hbase-vs-hive/
+
+12.	How will you display header row with the results of a Hive query?
+---------------------------------------------------------------------
+If we want to see the columns names of the table in HiveQl, the following hive conf property should be set to true.
+	hive> set hive.cli.print.header=true;
+If you prefer to see the column names always then update the $HOME/.hiverc file with the above setting in the first line..
+--Hive automatically looks for a file named .hiverc in your HOME directory and runs the commands it contains, if any
+To print header along with the output, the following hive conf property should be set to true before executing the query.
+	hive> set hive.cli.print.header=true;
+	hive> select * from table_name;
+We can also use query like this, if we want to get result in file.
+	hive -e 'set hive.cli.print.header=true;select * from table_name;' > result.xls
+Where table_name your table name
+
+13.	What is the use of TOUCH in ALTER statement?
+------------------------------------------------
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTable
+Alter Table/Partition Touch
+ALTER TABLE table_name TOUCH [PARTITION partition_spec];
+TOUCH reads the metadata, and writes it back. This has the effect of causing the pre/post execute hooks to fire. An example use case is 
+if you have a hook that logs all the tables/partitions that were modified, along with an external script that alters the files on HDFS 
+directly. Since the script modifies files outside of hive, the modification wouldn't be logged by the hook. The external script could 
+call TOUCH to fire the hook and mark the said table or partition as modified.
+Also, it may be useful later if we incorporate reliable last modified times. Then touch would update that time as well.
+Note that TOUCH doesn't create a table or partition if it doesn't already exist. (See Create Table.)
+
+https://community.hortonworks.com/questions/174393/question-on-hive-touch-command.html
+TOUCH reads the metadata, and writes it back. During the process, it updates the "Last Updated Timestamp" for the respective metadata. 
+Follows a quick example using a table called "test"
+1.	describe formatted test;
+From the pool of the metadata listed checkout for transient_lastDdlTime. It will look something like below.
+1.	transient_lastDdlTime | 1519679120 
+Now use touch command.
+1.	alter table test touch;
+Describe the table again.
+1.	describe formatted test;
+Check transient_lastDdlTime. This will be a recent timestamp compared to the older timestamp.
+1.	transient_lastDdlTime | 1519686268         // More recent to previous timestamp
+Why? As mentioned, touch read the metadata and wrote it back. When it wrote it back, it updated the metadata creation timestamp.
+In your use case, as you mentioned, the tables are TRUNCATED and RELOADED. Most probably that is done outside Hive. Hence the touch 
+command has been used to update the metadata timestamp so that it is in sync with your data load operations.
+Hope that helps!
+
+
+14.	What is the use of PURGE in DROP statement of Hive?
+-------------------------------------------------------
+
+Removes an Impala table. Also removes the underlying HDFS data files for internal tables, although not for external tables.
+Syntax:
+DROP TABLE [IF EXISTS] [db_name.]table_name [PURGE]
+IF EXISTS clause:
+The optional IF EXISTS clause makes the statement succeed whether or not the table exists. If the table does exist, it is dropped; 
+if it does not exist, the statement has no effect. This capability is useful in standardized setup scripts that remove existing schema 
+objects and create new ones. By using some combination of IF EXISTS for the DROP statements and IF NOT EXISTS clauses for the CREATE 
+statements, the script can run successfully the first time you run it (when the objects do not exist yet) and subsequent times (when 
+some or all of the objects do already exist).
+PURGE clause:
+The optional PURGE keyword, available in CDH 5.5 / Impala 2.3 and higher, causes Impala to remove the associated HDFS data files 
+immediately, rather than going through the HDFS trashcan mechanism. Use this keyword when dropping a table if it is crucial to remove 
+the data as quickly as possible to free up space, or if there is a problem with the trashcan, such as the trashcan not being configured 
+or being in a different HDFS encryption zone than the data files.
+
+15.	What is the use of CLUSTERED BY clause during table creation in Hive?
+-------------------------------------------------------------------------
+For bucketing
+
+16.	What are the main components of Query Processor in Apache Hive?
+
+17.	Can we use same name for a TABLE and VIEW in Hive?
+------------------------------------------------------
+NO 
+ 
+
+18.	How will you load data into a VIEW in Hive?
+------------------------------------------------
+create table t2 (id int, key string, value string, ds string, hr string);
+
+create view v2 as select id, key, value, ds, hr from t2;
+
+insert into v2 values (1,'key1','value1','ds1','hr1')
+
+***Error while compiling statement: FAILED: SemanticException org.apache.hadoop.hive.ql.metadata.HiveException: Unable to determine 
+if null is encrypted: java.lang.NullPointerException***
+
+19.	What is Bucketing in Hive?
+-----------------------------
+https://data-flair.training/blogs/bucketing-in-hive/
+
+20.	What are the table generating functions in Hive?
+----------------------------------------------------
+Table Generating Functions:explode(),array()
+https://yogeshdotnet.com/hive-udf-example/
+
+21.	What is a Skewed table in Hive?
+-----------------------------------
+http://letsexplorehadoop.blogspot.com/2016/06/skew-join-optimization-in-hive.html
+https://data-flair.training/blogs/skew-join-in-hive/
+
+22.	What is a Managed table in Hive?
+------------------------------------
+Internal table in which table and data will be deleted on the execution of DROP table command.
+
+23.	How will you prevent data to be dropped or queried from a partition in Hive?
+--------------------------------------------------------------------------------
+By specifying the partitions values 
+Select * from tablename where partitionecd_column = value;
+ 
+24.	How does OVERWRITE clause work in CREATE TABLE statement in Hive?
+
+Advanced
+========
+
+25.	How will you improve the performance of a program in Hive?
+--------------------------------------------------------------
+Partitioning Tables, De-normalizing data, Compress map/reduce output, Map join, Bucketing, Input Format Selection, Parallel execution, 
+Vectorization,Unit Testing, Sampling
+
+26.	What is the optimization that can be done in SELECT * query in Hive?
+------------------------------------------------------------------------
+
+27.	How will you rename a table in Hive without using ALTER command?
+--------------------------------------------------------------------
+Using mv command in Unix
+
+ALTER TABLE name RENAME TO new_name
+ALTER TABLE name ADD COLUMNS (col_spec[, col_spec ...])
+ALTER TABLE name DROP [COLUMN] column_name
+ALTER TABLE name CHANGE column_name new_name new_type
+ALTER TABLE name REPLACE COLUMNS (col_spec[, col_spec ….])
+
+28.	What are the main limitations of Apache Hive?
+
+29.	How will you resolve an out of memory error while running a JOIN query?
+---------------------------------------------------------------------------
+
+It will be based on the tables involved in join if one table is small and other is large
+https://stackoverflow.com/questions/18913928/hive-map-join-out-of-memory-exception
+
+At 300k rows the HT already uses 60% of your heap. First question to ask: are you sure you got the table order right, is the small table in the join really the smaller table in your data? When writing the query, the large table should be the last in the JOIN clause. Which Hive version are you on 0.9 or 0.11?
+If you are on Hive 0.11 and you are specifying the join correctly then the first thing to try would be to increase the Heap size. From the above data (300k row ~> 650Mb Heap) you can figure out how much heap you need.
+set hive.auto.convert.join = false; it will not give u memory exception.
+
+30.	What are the pros and cons of archiving a partition in Hive?
+----------------------------------------------------------------
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Archiving
+
